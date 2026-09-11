@@ -1,0 +1,16 @@
+// Prisma Schema - Sprint 0 (Base inicial para Sprint 1)
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Modelo de salud inicial (el esquema completo se llenará en el Sprint 1)
+model HealthCheck {
+  id        Int      @id @default(autoincrement())
+  status    String   @default("ok")
+  createdAt DateTime @default(now())
+}
