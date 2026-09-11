@@ -4,15 +4,77 @@ Sistema web para la generación automática de Contratos de Locación de Servici
 
 ## Stack Tecnológico
 
-- **Backend / API**: Node.js + Express + TypeScript
+- **Backend / API**: Node.js + Express + TypeScript + Zod
 - **Base de Datos**: SQLite + Prisma ORM
 - **Frontend**: React + Vite + TypeScript + Tailwind CSS
 - **Generación de Documentos**: docxtemplater (.docx)
 - **CI/CD**: GitHub Actions
+- **Testing**: Vitest + Supertest
 
 ## Estado del Proyecto
 
-`Sprint 0 - en construcción` 🚀
+`Sprint 1 - Modelo de datos & API REST completados` 🚀
+
+---
+
+## Modelo de Datos
+
+El sistema consta de 4 entidades principales relacionadas en SQLite mediante Prisma ORM:
+
+```mermaid
+erDiagram
+    COMITENTE ||--o{ CONTRATO : "contrata (1:N)"
+    LOCADOR ||--o{ CONTRATO : "presta servicio (1:N)"
+    CONTRATO ||--o{ RECIBO : "emite (1:N)"
+
+    COMITENTE {
+        int id PK
+        string tipo "publica | privada | natural"
+        string razonSocialNombre
+        string numDoc "RUC (11 dig) o DNI (8 dig)"
+        string domicilio
+        string repLegalNombre "opcional"
+        string repLegalDni "opcional"
+        string repLegalCargo "opcional"
+    }
+
+    LOCADOR {
+        int id PK
+        string nombreCompleto
+        string dni "8 digitos"
+        string ruc "opcional (11 dig)"
+        string domicilio
+        string profesionOficio
+    }
+
+    CONTRATO {
+        int id PK
+        string numContrato UK
+        int comitenteId FK
+        int locadorId FK
+        string objetoServicio
+        datetime fechaInicio
+        datetime fechaFin
+        float montoTotal
+        string formaPago
+        string antecedentes
+        string estado "activo | finalizado | resuelto"
+    }
+
+    RECIBO {
+        int id PK
+        int contratoId FK
+        string numRecibo
+        datetime fechaEmision
+        string periodo
+        float montoBruto
+        boolean aplicaRetencion
+        float montoRetencion
+        float montoNeto
+        string modalidadPago "contado | credito"
+        string descripcionServicio
+    }
+```
 
 ---
 
@@ -30,6 +92,7 @@ cd locacion-honorarios-pe
 ```bash
 cd backend
 npm install
+npx prisma db push
 npm run dev
 ```
 
@@ -55,6 +118,7 @@ La aplicación web estará disponible en `http://localhost:5173`.
 - `npm run dev`: Inicia el servidor en modo desarrollo con recarga en vivo (`tsx`).
 - `npm run build`: Compila TypeScript a JavaScript en `/dist`.
 - `npm run lint`: Ejecuta ESLint.
+- `npm test`: Ejecuta las pruebas unitarias e integración con Vitest.
 - `npm run format`: Formatea el código con Prettier.
 
 ### Frontend (`/frontend`)

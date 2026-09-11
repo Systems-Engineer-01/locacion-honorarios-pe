@@ -1,4 +1,3 @@
-// Prisma Schema - Sprint 0 (Base inicial para Sprint 1)
 datasource db {
   provider = "sqlite"
   url      = "file:./dev.db"
@@ -8,9 +7,66 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// Modelo de salud inicial (el esquema completo se llenará en el Sprint 1)
-model HealthCheck {
-  id        Int      @id @default(autoincrement())
-  status    String   @default("ok")
-  createdAt DateTime @default(now())
+model Comitente {
+  id                Int        @id @default(autoincrement())
+  tipo              String     // "publica" | "privada" | "natural"
+  razonSocialNombre String
+  numDoc            String     // RUC (11 dígitos) o DNI (8 dígitos)
+  domicilio         String
+  repLegalNombre    String?
+  repLegalDni       String?
+  repLegalCargo     String?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  contratos         Contrato[]
+}
+
+model Locador {
+  id              Int        @id @default(autoincrement())
+  nombreCompleto  String
+  dni             String     // 8 dígitos
+  ruc             String?    // opcional, 11 dígitos
+  domicilio       String
+  profesionOficio String
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  contratos       Contrato[]
+}
+
+model Contrato {
+  id             Int      @id @default(autoincrement())
+  numContrato    String   @unique
+  comitenteId    Int
+  locadorId      Int
+  objetoServicio String
+  fechaInicio    DateTime
+  fechaFin       DateTime
+  montoTotal     Float
+  formaPago      String   // "mensual" | "hitos" | "único"
+  antecedentes   String
+  estado         String   @default("activo") // "activo" | "finalizado" | "resuelto"
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  comitente Comitente @relation(fields: [comitenteId], references: [id], onDelete: Cascade)
+  locador   Locador   @relation(fields: [locadorId], references: [id], onDelete: Cascade)
+  recibos   Recibo[]
+}
+
+model Recibo {
+  id                  Int      @id @default(autoincrement())
+  contratoId          Int
+  numRecibo           String   // ej. "E001-00000123"
+  fechaEmision        DateTime
+  periodo             String   // ej. "Enero 2026"
+  montoBruto          Float
+  aplicaRetencion     Boolean  @default(false)
+  montoRetencion      Float    @default(0)
+  montoNeto           Float
+  modalidadPago       String   @default("contado") // "contado" | "credito"
+  descripcionServicio String
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  contrato Contrato @relation(fields: [contratoId], references: [id], onDelete: Cascade)
 }
